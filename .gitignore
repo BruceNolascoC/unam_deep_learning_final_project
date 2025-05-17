@@ -1,0 +1,9 @@
+# Build outputs
+*.elf
+*.gba
+*.map
+*.sav
+
+# Folders
+build/
+gbafix/
