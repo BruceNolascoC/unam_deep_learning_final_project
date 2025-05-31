@@ -59,3 +59,87 @@ For both samples the organization is the same:
   information, check: https://sourceware.org/newlib/libc.html#Syscalls
 
 .. _Arm's GNU toolchain downloads website: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads
+
+
+# Compile & Run Guide (Windows)
+
+This guide shows how to build the Docker image, compile the GBA project, and run the resulting ROM in mGBA.
+
+---
+
+## Prerequisites
+
+* **Docker Desktop** (with WSL2 integration enabled)
+* **mGBA** emulator installed or available in your `PATH`
+
+---
+
+## 1. Build the Docker Image
+
+In your project root (where this `Dockerfile` lives):
+
+```powershell
+cd \unam_deep_learning_final_project
+
+docker build -t gba-compiler .
+```
+
+This creates an image named `gba-compiler` containing devkitARM + `make`.
+
+---
+
+## 2. Compile the Project
+
+From the same folder, run:
+
+```powershell
+docker run --rm -v "${PWD}:/workspace" gba-compiler
+```
+
+* Binds your host folder into `/workspace` inside the container.
+* The container `cd`s into `/workspace/template_c` and runs `make`.
+* Outputs (`.elf`, `.gba`, etc.) appear back in your local `template_c` directory.
+
+---
+
+## 3. Locate the Generated ROM
+
+After the container exits, your ROM will be at:
+
+```
+template_c/first.gba
+```
+
+Other artifacts:
+
+* `template_c/first.elf`
+* `template_c/first.map`
+* `template_c/first.dump`
+
+---
+
+## 4. Run in mGBA
+
+* **GUI**: Open mGBA → File → Open ROM → select `template_c/first.gba`.
+* **CLI** (if in `PATH`):
+
+  ```powershell
+  mGBA unam_deep_learning_final_project\template_c\first.gba
+  ```
+
+---
+
+## 5. Iteration & Debugging
+
+* **Rebuild** after source changes:
+
+  ```powershell
+  docker run --rm -v "${PWD}:/workspace" gba-compiler
+  ```
+* **Interactive shell** inside container:
+
+  ```powershell
+  docker run --rm -it -v "${PWD}:/workspace" gba-compiler bash
+  cd template_c
+  make clean && make
+  ```
